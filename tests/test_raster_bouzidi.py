@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
-from lbmgeom.grids import Grid
-from lbmgeom.shapes.circle import Circle
-from lbmgeom.raster import rasterize
-from lbmgeom.bouzidi import compute_bouzidi
+from lb2dgeom.bouzidi import compute_bouzidi
+from lb2dgeom.grids import Grid
+from lb2dgeom.raster import rasterize
+from lb2dgeom.shapes.circle import Circle
+
 
 def test_rasterize_circle_shape():
     g = Grid(11, 11, dx=1.0, origin=(-5, -5))
@@ -12,10 +13,11 @@ def test_rasterize_circle_shape():
     assert phi.shape == (11, 11)
     assert solid.shape == (11, 11)
     # Boundary cells should have phi ~ 0
-    boundary_mask = (np.abs(phi) < 1.0)
+    boundary_mask = np.abs(phi) < 1.0
     assert np.any(boundary_mask)
     # Inside solid should have phi < 0
     assert np.all(phi[solid == 1] <= 0.0)
+
 
 def test_bouzidi_qi_range():
     g = Grid(21, 21, dx=1.0, origin=(-10, -10))

@@ -72,7 +72,9 @@ class CassiniOval(Shape):
         )
         sign = np.sign(initial)
 
-        if np.isscalar(dist):
+        if dist.ndim == 0:
+            dist = float(dist)
+            sign = float(sign)
             if dist == 0.0:
                 if sign < 0 and self.a > self.c:
                     dist = np.sqrt(self.a**2 - self.c**2)

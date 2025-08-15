@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Tuple
 
+
 class Grid:
     """
     Uniform Cartesian grid for 2D domain. Provides cell-center coordinates.
@@ -23,6 +24,11 @@ class Grid:
     """
 
     def __init__(self, nx: int, ny: int, dx: float = 1.0, origin=(0.0, 0.0)):
+        if nx <= 0 or ny <= 0:
+            raise ValueError("nx and ny must be positive")
+        if dx <= 0:
+            raise ValueError("dx must be positive")
+
         self.nx = int(nx)
         self.ny = int(ny)
         self.dx = float(dx)

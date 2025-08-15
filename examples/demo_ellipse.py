@@ -1,18 +1,18 @@
-import numpy as np
 import os
-from lbmgeom.grids import Grid
-from lbmgeom.shapes.ellipse import Ellipse
-from lbmgeom.raster import rasterize
-from lbmgeom.bouzidi import compute_bouzidi
-from lbmgeom.io import save_npz
-from lbmgeom import viz
+import numpy as np
+from lb2dgeom.bouzidi import compute_bouzidi
+from lb2dgeom.grids import Grid
+from lb2dgeom.io import save_npz
+from lb2dgeom.raster import rasterize
+from lb2dgeom.shapes.ellipse import Ellipse
+from lb2dgeom import viz
 
 if __name__ == "__main__":
     # Grid setup
     g = Grid(nx=100, ny=80, dx=1.0, origin=(-50.0, -40.0))
 
     # Define a rotated ellipse
-    shape = Ellipse(x0=0.0, y0=0.0, a=20.0, b=10.0, theta=np.pi/6)
+    shape = Ellipse(x0=0.0, y0=0.0, a=20.0, b=10.0, theta=np.pi / 6)
 
     # Rasterize
     phi, solid = rasterize(g, shape)

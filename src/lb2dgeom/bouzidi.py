@@ -3,11 +3,14 @@ from typing import Tuple
 from .d2q9 import E, E_LENGTHS
 from .grids import Grid
 
-def compute_bouzidi(grid: Grid,
-                    phi: np.ndarray,
-                    solid: np.ndarray,
-                    tol: float = 1e-6,
-                    max_iter: int = 20) -> np.ndarray:
+
+def compute_bouzidi(
+    grid: Grid,
+    phi: np.ndarray,
+    solid: np.ndarray,
+    tol: float = 1e-6,
+    max_iter: int = 20,
+) -> np.ndarray:
     """
     Compute Bouzidi q_i fractions for D2Q9 model.
 
@@ -53,12 +56,10 @@ def compute_bouzidi(grid: Grid,
                 L = E_LENGTHS[i] * dx
                 xf = Xc[y, x]
                 yf = Yc[y, x]
-                xb = Xc[nyn, nxn]
-                yb = Yc[nyn, nxn]
                 phi_f = phi[y, x]
                 phi_b = phi[nyn, nxn]
                 # Ensure bracket: fluid positive, solid negative
-                if phi_f <= 0 or phi_b >= 0:
+                if phi_f < 0 or phi_b > 0:
                     continue
                 s0 = 0.0
                 s1 = L
@@ -78,6 +79,7 @@ def compute_bouzidi(grid: Grid,
                 bouzidi[y, x, i] = q_i
     return bouzidi
 
+
 def interp_phi(x: float, y: float, grid: Grid, phi: np.ndarray) -> float:
     """
     Bilinear interpolation of phi at physical coords (x,y).
@@ -90,15 +92,17 @@ def interp_phi(x: float, y: float, grid: Grid, phi: np.ndarray) -> float:
     gy = (y - oy) / dx
     ix = int(np.floor(gx))
     iy = int(np.floor(gy))
-    if ix < 0 or ix >= nx-1 or iy < 0 or iy >= ny-1:
+    if ix < 0 or ix >= nx - 1 or iy < 0 or iy >= ny - 1:
         return np.nan
     fx = gx - ix
     fy = gy - iy
     p00 = phi[iy, ix]
-    p10 = phi[iy, ix+1]
-    p01 = phi[iy+1, ix]
-    p11 = phi[iy+1, ix+1]
-    return (p00*(1-fx)*(1-fy) +
-            p10*fx*(1-fy) +
-            p01*(1-fx)*fy +
-            p11*fx*fy)
+    p10 = phi[iy, ix + 1]
+    p01 = phi[iy + 1, ix]
+    p11 = phi[iy + 1, ix + 1]
+    return (
+        p00 * (1 - fx) * (1 - fy)
+        + p10 * fx * (1 - fy)
+        + p01 * (1 - fx) * fy
+        + p11 * fx * fy
+    )

@@ -58,8 +58,17 @@ def compute_bouzidi(
                 yf = Yc[y, x]
                 phi_f = phi[y, x]
                 phi_b = phi[nyn, nxn]
-                # Ensure bracket: fluid positive, solid negative
-                if phi_f < 0 or phi_b > 0:
+                # Ensure bracket: fluid strictly positive, solid strictly negative
+                if (
+                    phi_f <= 0
+                    or phi_b >= 0
+                    or np.isclose(phi_f, 0.0, atol=tol)
+                    or np.isclose(phi_b, 0.0, atol=tol)
+                ):
+                    if np.isclose(phi_f, 0.0, atol=tol) and phi_b < 0:
+                        bouzidi[y, x, i] = 0.0
+                    elif np.isclose(phi_b, 0.0, atol=tol) and phi_f > 0:
+                        bouzidi[y, x, i] = 1.0
                     continue
                 s0 = 0.0
                 s1 = L

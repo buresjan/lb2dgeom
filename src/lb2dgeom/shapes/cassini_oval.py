@@ -4,16 +4,26 @@ from .base import Shape
 
 ArrayLike = Union[float, np.ndarray]
 
+
 class CassiniOval(Shape):
-    """
-    Cassini oval defined by center (x0, y0), parameter a, focal half-distance c,
-    and rotation theta (radians).
+    """Cassini oval with signed distance evaluation.
 
-    For foci at (±c, 0) in local frame, the implicit equation is:
-        f(x,y) = (X^2 + Y^2)^2 - 2*c^2*(X^2 - Y^2) + (c^4 - a^4) = 0
-    Negative inside (depending on a, c), positive outside.
+    Parameters
+    ----------
+    x0, y0 : float
+        Center of the oval.
+    a : float
+        Constant product of distances to the two foci.
+    c : float
+        Half-distance between the foci along the ``x`` axis in the local frame.
+    theta : float, optional
+        Rotation angle in radians.
 
-    One-loop if a > c, peanut/lemniscate shape if a ≈ c, two loops if c > a.
+    Notes
+    -----
+    The :meth:`sdf` routine returns the Euclidean signed distance to the
+    Cassini-oval boundary using a Newton projection. The shape may consist of
+    one or two loops depending on the relation between ``a`` and ``c``.
     """
 
     def __init__(self, x0: float, y0: float, a: float, c: float, theta: float = 0.0):
@@ -26,16 +36,56 @@ class CassiniOval(Shape):
         self._sin = np.sin(-self.theta)
 
     def sdf(self, x: ArrayLike, y: ArrayLike) -> np.ndarray:
-        # Translate and rotate into local frame
-        X = x - self.x0
-        Y = y - self.y0
+        """Signed distance to the Cassini-oval boundary."""
+
+        x_arr = np.asarray(x, dtype=float)
+        y_arr = np.asarray(y, dtype=float)
+
+        X = x_arr - self.x0
+        Y = y_arr - self.y0
         if self.theta != 0.0:
             x_local = self._cos * X - self._sin * Y
             y_local = self._sin * X + self._cos * Y
         else:
             x_local = X
             y_local = Y
-        X2 = x_local**2
-        Y2 = y_local**2
-        f_val = (X2 + Y2)**2 - 2*(self.c**2)*(X2 - Y2) + (self.c**4 - self.a**4)
-        return f_val
+
+        px = x_local.copy()
+        py = y_local.copy()
+
+        for _ in range(25):
+            r2 = px * px + py * py
+            f_val = (
+                r2**2 - 2 * (self.c**2) * (px * px - py * py) + (self.c**4 - self.a**4)
+            )
+            gx = 4.0 * px * (r2 - self.c**2)
+            gy = 4.0 * py * (r2 + self.c**2)
+            denom = gx * gx + gy * gy + 1e-12
+            px -= f_val * gx / denom
+            py -= f_val * gy / denom
+
+        dist = np.sqrt((px - x_local) ** 2 + (py - y_local) ** 2)
+        initial = (
+            (x_local**2 + y_local**2) ** 2
+            - 2 * (self.c**2) * (x_local**2 - y_local**2)
+            + (self.c**4 - self.a**4)
+        )
+        sign = np.sign(initial)
+
+        if np.isscalar(dist):
+            if dist == 0.0:
+                if sign < 0 and self.a > self.c:
+                    dist = np.sqrt(self.a**2 - self.c**2)
+                elif sign > 0 and self.c > self.a:
+                    dist = np.sqrt(self.c**2 - self.a**2)
+            return sign * dist
+
+        mask_inside = (sign < 0) & (dist == 0.0) & (self.a > self.c)
+        mask_outside = (sign > 0) & (dist == 0.0) & (self.c > self.a)
+        if np.any(mask_inside) or np.any(mask_outside):
+            dist = dist + 0.0
+            if np.any(mask_inside):
+                dist[mask_inside] = np.sqrt(self.a**2 - self.c**2)
+            if np.any(mask_outside):
+                dist[mask_outside] = np.sqrt(self.c**2 - self.a**2)
+        return sign * dist

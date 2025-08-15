@@ -30,3 +30,13 @@ def test_bouzidi_qi_range():
     assert np.all((bouzidi[mask] >= 0) & (bouzidi[mask] <= 1))
     # Rest velocity direction should always be NaN
     assert np.all(np.isnan(bouzidi[:, :, 0]))
+
+
+def test_bouzidi_handles_boundary_on_neighbor_center():
+    g = Grid(21, 21, dx=1.0, origin=(-10, -10))
+    shape = Circle(0, 0, 5.0)
+    phi, solid = rasterize(g, shape)
+    bouzidi = compute_bouzidi(g, phi, solid)
+    y = int(0 - g.origin[1])
+    x = int(6 - g.origin[0])  # Fluid cell at (6, 0)
+    assert np.isclose(bouzidi[y, x, 3], 1.0)

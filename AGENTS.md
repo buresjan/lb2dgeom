@@ -134,7 +134,10 @@ The library’s goal is to provide high-accuracy signed distance field (SDF) gen
 * **Grid agent** must provide coordinates in *physical* units for SDF evaluation.
 * **Shape agents** must treat negative φ as inside solid.
 * **Bouzidi agent** assumes φ is continuous; SDF discontinuities will break root-finding.
-* **Viz agent** saves plots to `examples/output/` regardless of environment, shows interactively only in `__main__`.
+* **Viz agent** writes plots to a caller-specified directory (default is the
+  current working directory). Example scripts pass
+  `out_dir=os.path.join("examples", "output")` and show plots interactively
+  only in `__main__`.
 * **I/O agent** should always save `solid`, `phi`, `bouzidi` arrays with matching dimensions.
 
 ---

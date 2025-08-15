@@ -26,8 +26,10 @@ if __name__ == "__main__":
     save_npz(os.path.join(out_dir, "ellipse_geom.npz"), solid, phi, bouzidi)
 
     # Diagnostics
-    viz.plot_solid(solid, "ellipse_solid.png", show=False)
-    viz.plot_phi(phi, "ellipse_phi.png", levels=30, show=False)
-    viz.plot_bouzidi_hist(bouzidi, "ellipse_bouzidi_hist.png", show=False)
+    viz.plot_solid(solid, "ellipse_solid.png", show=False, out_dir=out_dir)
+    viz.plot_phi(phi, "ellipse_phi.png", levels=30, show=False, out_dir=out_dir)
+    viz.plot_bouzidi_hist(
+        bouzidi, "ellipse_bouzidi_hist.png", show=False, out_dir=out_dir
+    )
 
     print("Demo ellipse complete. Outputs saved in examples/output/")

@@ -34,10 +34,14 @@ if __name__ == "__main__":
     save_npz(os.path.join(out_dir, "boolean_union_geom.npz"), solid_u, phi_u, bouzidi_u)
 
     # Diagnostics for union
-    viz.plot_solid(solid_u, "boolean_union_solid.png", show=False)
-    viz.plot_phi(phi_u, "boolean_union_phi.png", levels=30, show=False)
-    viz.plot_bouzidi_hist(bouzidi_u, "boolean_union_bouzidi_hist.png", show=False)
-    viz.plot_bouzidi_dirs(bouzidi_u, "boolean_union_bouzidi_dir", show=False)
+    viz.plot_solid(solid_u, "boolean_union_solid.png", show=False, out_dir=out_dir)
+    viz.plot_phi(phi_u, "boolean_union_phi.png", levels=30, show=False, out_dir=out_dir)
+    viz.plot_bouzidi_hist(
+        bouzidi_u, "boolean_union_bouzidi_hist.png", show=False, out_dir=out_dir
+    )
+    viz.plot_bouzidi_dirs(
+        bouzidi_u, "boolean_union_bouzidi_dir", show=False, out_dir=out_dir
+    )
 
     # --- Difference: circle minus rectangle ---
     circle_d = Circle(x0=0.0, y0=0.0, r=25.0)
@@ -54,9 +58,13 @@ if __name__ == "__main__":
     save_npz(os.path.join(out_dir, "boolean_diff_geom.npz"), solid_d, phi_d, bouzidi_d)
 
     # Diagnostics for difference
-    viz.plot_solid(solid_d, "boolean_diff_solid.png", show=False)
-    viz.plot_phi(phi_d, "boolean_diff_phi.png", levels=30, show=False)
-    viz.plot_bouzidi_hist(bouzidi_d, "boolean_diff_bouzidi_hist.png", show=False)
-    viz.plot_bouzidi_dirs(bouzidi_d, "boolean_diff_bouzidi_dir", show=False)
+    viz.plot_solid(solid_d, "boolean_diff_solid.png", show=False, out_dir=out_dir)
+    viz.plot_phi(phi_d, "boolean_diff_phi.png", levels=30, show=False, out_dir=out_dir)
+    viz.plot_bouzidi_hist(
+        bouzidi_d, "boolean_diff_bouzidi_hist.png", show=False, out_dir=out_dir
+    )
+    viz.plot_bouzidi_dirs(
+        bouzidi_d, "boolean_diff_bouzidi_dir", show=False, out_dir=out_dir
+    )
 
     print("Boolean ops demo complete. Outputs saved in examples/output/")

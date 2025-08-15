@@ -71,7 +71,8 @@ viz.plot_bouzidi_dirs(bouzidi, "circle_bouzidi_dir")
 
 See the ``examples/`` directory for complete scripts for an ellipse and a
 Cassini oval. Running an example (e.g. ``python examples/demo_cassini.py``)
-produces geometry files and PNG diagnostics in ``examples/output/``.
+produces geometry files and PNG diagnostics in ``examples/output/``, which
+is supplied via the ``out_dir`` parameter in each plotting call.
 
 ### Feature guide
 
@@ -89,7 +90,9 @@ produces geometry files and PNG diagnostics in ``examples/output/``.
   disk.
 * **Visualisation** – ``lb2dgeom.viz`` contains
   ``plot_solid``, ``plot_phi``, ``plot_bouzidi_hist`` and
-  ``plot_bouzidi_dirs`` for inspecting geometry and boundary data.
+  ``plot_bouzidi_dirs`` for inspecting geometry and boundary data. Each
+  plotting function accepts an optional ``out_dir`` argument, defaulting to
+  the current working directory.
 
 ## Running tests
 

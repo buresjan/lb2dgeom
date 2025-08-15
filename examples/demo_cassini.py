@@ -30,9 +30,11 @@ if __name__ == "__main__":
     save_npz(os.path.join(out_dir, "cassini_geom.npz"), solid, phi, bouzidi)
 
     # Diagnostics
-    viz.plot_solid(solid, "cassini_solid.png", show=False)
-    viz.plot_phi(phi, "cassini_phi.png", levels=30, show=False)
-    viz.plot_bouzidi_hist(bouzidi, "cassini_bouzidi_hist.png", show=False)
-    viz.plot_bouzidi_dirs(bouzidi, "cassini_bouzidi_dir", show=False)
+    viz.plot_solid(solid, "cassini_solid.png", out_dir=out_dir, show=False)
+    viz.plot_phi(phi, "cassini_phi.png", levels=30, out_dir=out_dir, show=False)
+    viz.plot_bouzidi_hist(
+        bouzidi, "cassini_bouzidi_hist.png", out_dir=out_dir, show=False
+    )
+    viz.plot_bouzidi_dirs(bouzidi, "cassini_bouzidi_dir", out_dir=out_dir, show=False)
 
     print("Demo Cassini oval complete. Outputs saved in examples/output/")

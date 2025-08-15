@@ -1,7 +1,14 @@
 import numpy as np
 from typing import Any, Dict
 
-def save_npz(path: str, solid: np.ndarray, phi: np.ndarray, bouzidi: np.ndarray, **extras: Any) -> None:
+
+def save_npz(
+    path: str,
+    solid: np.ndarray,
+    phi: np.ndarray,
+    bouzidi: np.ndarray,
+    **extras: Any,
+) -> None:
     """
     Save geometry arrays to a compressed .npz file.
 
@@ -21,19 +28,20 @@ def save_npz(path: str, solid: np.ndarray, phi: np.ndarray, bouzidi: np.ndarray,
     np.savez_compressed(path, solid=solid, phi=phi, bouzidi=bouzidi, **extras)
 
 
-def load_npz(path: str) -> Dict[str, Any]:
-    """
-    Load geometry arrays from a compressed .npz file.
+def load_npz(path: str, allow_pickle: bool = False) -> Dict[str, Any]:
+    """Load geometry arrays from a compressed ``.npz`` file.
 
     Parameters
     ----------
     path : str
         File path.
+    allow_pickle : bool, optional
+        Whether to allow loading pickled object arrays. Defaults to ``False``.
 
     Returns
     -------
     data : dict
-        Dictionary with 'solid', 'phi', 'bouzidi', and any extra keys.
+        Dictionary with ``'solid'``, ``'phi'``, ``'bouzidi'``, and any extra keys.
     """
-    with np.load(path, allow_pickle=True) as data:
+    with np.load(path, allow_pickle=allow_pickle) as data:
         return {key: data[key] for key in data.files}

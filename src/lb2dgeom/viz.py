@@ -15,7 +15,21 @@ def _ensure_output_dir():
 
 
 def plot_solid(solid: np.ndarray, fname: str, show: bool = False) -> None:
-    """Plot solid mask."""
+    """Plot a binary solid mask.
+
+    Parameters
+    ----------
+    solid : np.ndarray
+        Binary array marking solid cells.
+    fname : str
+        Output PNG filename.
+    show : bool, optional
+        If ``True``, display the figure interactively.
+
+    Returns
+    -------
+    None
+    """
     out_dir = _ensure_output_dir()
     plt.figure()
     plt.imshow(solid, origin="lower", cmap="gray_r")
@@ -62,7 +76,21 @@ def plot_phi(
 
 
 def plot_bouzidi_hist(bouzidi: np.ndarray, fname: str, show: bool = False) -> None:
-    """Histogram of Bouzidi q_i values (ignoring NaNs)."""
+    """Plot a histogram of Bouzidi ``q_i`` values.
+
+    Parameters
+    ----------
+    bouzidi : np.ndarray
+        Bouzidi coefficients; NaNs are ignored.
+    fname : str
+        Output PNG filename.
+    show : bool, optional
+        If ``True``, display the figure interactively.
+
+    Returns
+    -------
+    None
+    """
     out_dir = _ensure_output_dir()
     plt.figure()
     vals = bouzidi[~np.isnan(bouzidi)]

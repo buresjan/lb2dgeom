@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: lb2dgeom
-Version: 0.1.0
-Summary: Analytic 2D geometry + Bouzidi q_i for D2Q9 LBM (local install)
-Requires-Python: >=3.9
-Requires-Dist: numpy>=1.23
-Requires-Dist: matplotlib>=3.7

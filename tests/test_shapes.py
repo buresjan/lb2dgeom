@@ -35,6 +35,17 @@ def test_rounded_rect_sdf():
     assert rr.sdf(10, 0) > 0
 
 
+def test_rounded_rect_sdf_anisotropic():
+    """Rounded rectangle should handle different x/y radii."""
+    rr = RoundedRect(0, 0, 4, 2, 1, 0.5)
+    # Inside point near the right side uses rx correctly
+    assert np.isclose(rr.sdf(1.5, 0), -0.5, atol=1e-6)
+    # Point on the vertical edge
+    assert np.isclose(rr.sdf(2, 0.4), 0.0, atol=1e-6)
+    # Outside near the top-right corner
+    assert np.isclose(rr.sdf(2.2, 0.5), 0.2, atol=1e-6)
+
+
 def test_cassini_oval_sdf_one_loop_two_loop():
     co1 = CassiniOval(0, 0, a=5, c=3)
     co2 = CassiniOval(0, 0, a=3, c=5)

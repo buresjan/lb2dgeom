@@ -40,3 +40,24 @@ def test_bouzidi_handles_boundary_on_neighbor_center():
     y = int(0 - g.origin[1])
     x = int(6 - g.origin[0])  # Fluid cell at (6, 0)
     assert np.isclose(bouzidi[y, x, 3], 1.0)
+
+
+def test_bouzidi_skips_out_of_bounds_interp():
+    g = Grid(3, 3, dx=1.0, origin=(0.0, 0.0))
+    phi = np.array(
+        [
+            [1.0, 1.0, -1.0],
+            [1.0, 1.0, -1.0],
+            [1.0, 1.0, np.nan],
+        ]
+    )
+    solid = np.array(
+        [
+            [0, 0, 1],
+            [0, 0, 1],
+            [0, 0, 1],
+        ],
+        dtype=int,
+    )
+    bouzidi = compute_bouzidi(g, phi, solid)
+    assert np.isnan(bouzidi[1, 1, 1])

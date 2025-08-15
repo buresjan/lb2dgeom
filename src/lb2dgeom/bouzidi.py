@@ -63,17 +63,23 @@ def compute_bouzidi(
                     continue
                 s0 = 0.0
                 s1 = L
+                encountered_nan = False
                 for _ in range(max_iter):
                     sm = 0.5 * (s0 + s1)
                     xm = xf + (ex / E_LENGTHS[i]) * sm
                     ym = yf + (ey / E_LENGTHS[i]) * sm
                     phi_m = float(interp_phi(xm, ym, grid, phi))
+                    if np.isnan(phi_m):
+                        encountered_nan = True
+                        break
                     if phi_m > 0:
                         s0 = sm
                     else:
                         s1 = sm
                     if abs(s1 - s0) < tol * dx:
                         break
+                if encountered_nan:
+                    continue
                 d_wall = s1
                 q_i = d_wall / L
                 bouzidi[y, x, i] = q_i

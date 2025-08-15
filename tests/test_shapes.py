@@ -3,7 +3,7 @@ import pytest
 from lb2dgeom.shapes.cassini_oval import CassiniOval
 from lb2dgeom.shapes.circle import Circle
 from lb2dgeom.shapes.ellipse import Ellipse
-from lb2dgeom.shapes.ops import Difference, Intersection, Union
+from lb2dgeom.shapes.ops import Difference, Intersection, RotatedShape, Union
 from lb2dgeom.shapes.rectangle import Rectangle
 from lb2dgeom.shapes.rounded_rect import RoundedRect
 
@@ -82,3 +82,18 @@ def test_boolean_ops():
     assert i.sdf(0, 0) < 0
     assert d.sdf(0.9, 0.9) < 0
     assert d.sdf(0, 0) > 0
+
+
+def test_rotated_shape_boundary():
+    rect = Rectangle(0, 0, 2, 4)
+    rotated = RotatedShape(rect, np.pi / 2)
+    assert np.isclose(rotated.sdf(0, 1), 0.0, atol=1e-6)
+    assert np.isclose(rotated.sdf(-2, 0), 0.0, atol=1e-6)
+
+
+def test_rotated_shape_custom_origin():
+    rect = Rectangle(1, 0, 2, 4)
+    r_origin0 = RotatedShape(rect, np.pi / 2, origin=(0, 0))
+    r_default = RotatedShape(rect, np.pi / 2)
+    assert np.isclose(r_origin0.sdf(0, 2), 0.0, atol=1e-6)
+    assert r_default.sdf(0, 2) > 0.5

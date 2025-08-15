@@ -9,23 +9,23 @@ Bouzidi link-fraction calculations for the D2Q9 model.
 **lb2dgeom** covers the entire workflow of preparing complex 2‑D boundaries for
 LBM solvers:
 
-* **Parametric shapes** – circle, ellipse, rectangle (axis aligned or rotated),
+- **Parametric shapes** – circle, ellipse, rectangle (axis aligned or rotated),
   rounded rectangle and Cassini oval.
-* **Boolean operations** – union, intersection and difference are implemented
+- **Boolean operations** – union, intersection and difference are implemented
   using standard signed–distance blending rules.
-* **Signed distance fields** – shapes provide analytic ``sdf(x, y)`` methods and
+- **Signed distance fields** – shapes provide analytic `sdf(x, y)` methods and
   are rasterised onto uniform Cartesian grids.
-* **Bouzidi boundary fractions** – compute ``q_i`` link fractions for all
+- **Bouzidi boundary fractions** – compute `q_i` link fractions for all
   D2Q9 lattice directions with physical length normalisation.
-* **I/O helpers** – save and load geometry data sets in ``.npz`` format.
-* **Visualisation utilities** – plot solid masks, signed distance fields,
-  Bouzidi histograms and per‑direction ``q_i`` fields.
+- **I/O helpers** – save and load geometry data sets in `.npz` format.
+- **Visualisation utilities** – plot solid masks, signed distance fields,
+  Bouzidi histograms and per‑direction `q_i` fields.
 
 ## Installation
 
 ### Conda environment
 
-Create and activate the conda environment specified in ``environment.yml``:
+Create and activate the conda environment specified in `environment.yml`:
 
 ```bash
 conda env create -f environment.yml
@@ -76,21 +76,47 @@ examples/demo_boolean_ops.py``) produces geometry files and PNG diagnostics in
 
 ### Feature guide
 
-* **Grid generation** – ``Grid(nx, ny, dx, origin)`` provides cell centres and
+- **Grid generation** – `Grid(nx, ny, dx, origin)` provides cell centres and
   spacing in physical units.
-* **Shapes** – analytic ``sdf`` implementations live in ``lb2dgeom.shapes`` and
-  share a common ``Shape`` base class. Shapes may be combined via boolean
-  operations from ``lb2dgeom.shapes.ops``.
-* **Rasterisation** – ``rasterize(grid, shape)`` samples ``phi`` and returns the
+- **Shapes** – analytic `sdf` implementations live in `lb2dgeom.shapes` and
+  share a common `Shape` base class. Shapes may be combined via boolean
+  operations from `lb2dgeom.shapes.ops`.
+- **Rasterisation** – `rasterize(grid, shape)` samples `phi` and returns the
   solid mask for LBM nodes.
-* **Bouzidi coefficients** – ``compute_bouzidi`` locates boundary intersections
-  for all lattice directions and returns an array of ``q_i`` fractions with
-  ``NaN`` in cells without solid neighbours.
-* **I/O** – ``lb2dgeom.io.save_npz`` and ``load_npz`` persist geometry arrays to
+- **Bouzidi coefficients** – `compute_bouzidi` locates boundary intersections
+  for all lattice directions and returns an array of `q_i` fractions with
+  `NaN` in cells without solid neighbours.
+- **I/O** – `lb2dgeom.io.save_npz` and `load_npz` persist geometry arrays to
   disk.
-* **Visualisation** – ``lb2dgeom.viz`` contains
-  ``plot_solid``, ``plot_phi``, ``plot_bouzidi_hist`` and
-  ``plot_bouzidi_dirs`` for inspecting geometry and boundary data.
+- **Visualisation** – `lb2dgeom.viz` contains
+  `plot_solid`, `plot_phi`, `plot_bouzidi_hist` and
+  `plot_bouzidi_dirs` for inspecting geometry and boundary data.
+
+### Boolean operations
+
+The `lb2dgeom.shapes.ops` module provides `union`, `difference` and
+`intersection` helpers for combining shapes. The snippet below joins a circle
+and rectangle and renders the union mask:
+
+```python
+from lb2dgeom.grids import Grid
+from lb2dgeom.raster import rasterize
+from lb2dgeom.shapes.circle import Circle
+from lb2dgeom.shapes.ops import difference, intersection, union
+from lb2dgeom.shapes.rectangle import Rectangle
+from lb2dgeom import viz
+
+circle = Circle(x0=-10.0, y0=0.0, r=15.0)
+rect = Rectangle(x0=10.0, y0=0.0, w=20.0, h=30.0)
+
+u = union(circle, rect)
+i = intersection(circle, rect)
+d = difference(circle, rect)
+
+g = Grid(nx=120, ny=80, dx=1.0, origin=(-60.0, -40.0))
+phi_u, solid_u = rasterize(g, u)
+viz.plot_solid(solid_u, "union.png")
+```
 
 ## Running tests
 
@@ -103,4 +129,3 @@ pytest -q
 ## License
 
 This project is released under the MIT License.
-

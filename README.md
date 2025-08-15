@@ -70,9 +70,11 @@ viz.plot_bouzidi_dirs(bouzidi, "circle_bouzidi_dir")
 ```
 
 See the ``examples/`` directory for complete scripts for an ellipse, a Cassini
-oval, and boolean operations on primitives. Running an example (e.g. ``python
-examples/demo_boolean_ops.py``) produces geometry files and PNG diagnostics in
-``examples/output/``.
+oval, and boolean operations on primitives. Running an example (e.g.
+``python examples/demo_boolean_ops.py``) produces geometry files and PNG
+diagnostics. Each script writes its images to ``examples/output/`` by
+supplying ``out_dir=os.path.join("examples", "output")`` to the plotting
+utilities.
 
 ### Feature guide
 

@@ -59,10 +59,14 @@ class Ellipse(Shape):
         dist = np.sqrt((px - x_local) ** 2 + (py - y_local) ** 2)
         sign = np.sign((x_local / self.a) ** 2 + (y_local / self.b) ** 2 - 1.0)
 
-        if np.isscalar(dist):
-            if sign < 0 and dist == 0.0:
-                dist = min(self.a, self.b)
-            return sign * dist
+        dist = np.asarray(dist)
+
+        if dist.ndim == 0:
+            dist_val = float(dist)
+            sign_val = float(sign)
+            if sign_val < 0 and dist_val == 0.0:
+                dist_val = min(self.a, self.b)
+            return sign_val * dist_val
 
         mask = (sign < 0) & (dist == 0.0)
         if np.any(mask):

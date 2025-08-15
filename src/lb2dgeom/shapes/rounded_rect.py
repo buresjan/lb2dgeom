@@ -4,26 +4,52 @@ from .base import Shape
 
 ArrayLike = Union[float, np.ndarray]
 
+
 class RoundedRect(Shape):
+    r"""Rounded rectangle with potentially different x/y corner radii.
+
+    Parameters
+    ----------
+    x0, y0 : float
+        Center of the rectangle.
+    w, h : float
+        Width and height of the rectangle.
+    rx : float
+        Corner radius along the x-direction.
+    ry : float, optional
+        Corner radius along the y-direction. If not provided, ``ry`` equals
+        ``rx``.
+    theta : float, optional
+        Rotation angle in radians.
+
+    Notes
+    -----
+    The signed distance function is computed by shrinking the rectangle by
+    ``(rx, ry)`` along the respective axes and subtracting these radii from the
+    local coordinates. The corners are therefore treated as quarter ellipses
+    with radii ``rx`` and ``ry``. For local coordinates ``(x_l, y_l)`` the
+    distance is
+
+    .. math::
+
+       hw_0 = \max(w/2 - r_x, 0)\\
+       hh_0 = \max(h/2 - r_y, 0)\\
+       d_x = |x_l| - hw_0 - r_x\\
+       d_y = |y_l| - hh_0 - r_y\\
+       \phi = \operatorname{hypot}(\max(d_x,0),\max(d_y,0))
+              + \min(\max(d_x,d_y),0)
     """
-    Rounded rectangle defined by center (x0, y0), width w, height h,
-    corner radius rx (and optional ry), and rotation theta (radians).
 
-    We approximate the SDF by shrinking the rectangle by the radius
-    and subtracting the radius from the distance field (circular corners).
-
-    Formula:
-        hw0 = max(w/2 - rx, 0)
-        hh0 = max(h/2 - ry, 0)
-        dx = |x_local| - hw0
-        dy = |y_local| - hh0
-        outside_dist = sqrt(max(dx,0)^2 + max(dy,0)^2)
-        inside_dist = min(max(dx, dy), 0)
-        φ = outside_dist + inside_dist - min(rx, ry)
-    """
-
-    def __init__(self, x0: float, y0: float, w: float, h: float,
-                 rx: float, ry: float = None, theta: float = 0.0):
+    def __init__(
+        self,
+        x0: float,
+        y0: float,
+        w: float,
+        h: float,
+        rx: float,
+        ry: float = None,
+        theta: float = 0.0,
+    ):
         self.x0 = float(x0)
         self.y0 = float(y0)
         self.w = float(w)
@@ -49,8 +75,8 @@ class RoundedRect(Shape):
             y_local = Y
         hw0 = max(0.5 * self.w - self.rx, 0.0)
         hh0 = max(0.5 * self.h - self.ry, 0.0)
-        dx0 = np.abs(x_local) - hw0
-        dy0 = np.abs(y_local) - hh0
-        outside_dist0 = np.sqrt(np.maximum(dx0, 0.0)**2 + np.maximum(dy0, 0.0)**2)
-        inside_dist0 = np.minimum(np.maximum(dx0, dy0), 0.0)
-        return outside_dist0 + inside_dist0 - min(self.rx, self.ry)
+        dx = np.abs(x_local) - hw0 - self.rx
+        dy = np.abs(y_local) - hh0 - self.ry
+        outside_dist = np.hypot(np.maximum(dx, 0.0), np.maximum(dy, 0.0))
+        inside_dist = np.minimum(np.maximum(dx, dy), 0.0)
+        return outside_dist + inside_dist

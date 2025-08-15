@@ -69,9 +69,10 @@ viz.plot_phi(phi, "circle_phi.png")
 viz.plot_bouzidi_dirs(bouzidi, "circle_bouzidi_dir")
 ```
 
-See the ``examples/`` directory for complete scripts for an ellipse and a
-Cassini oval. Running an example (e.g. ``python examples/demo_cassini.py``)
-produces geometry files and PNG diagnostics in ``examples/output/``.
+See the ``examples/`` directory for complete scripts for an ellipse, a Cassini
+oval, and boolean operations on primitives. Running an example (e.g. ``python
+examples/demo_boolean_ops.py``) produces geometry files and PNG diagnostics in
+``examples/output/``.
 
 ### Feature guide
 

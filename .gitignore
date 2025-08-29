@@ -109,3 +109,6 @@ examples/output/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Local scratch workspace (ignored)
+ellipse-1D/

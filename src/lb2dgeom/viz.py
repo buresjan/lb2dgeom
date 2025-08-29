@@ -1,7 +1,7 @@
 """Visualization utilities for geometry and Bouzidi diagnostics."""
 
 import os
-from typing import Optional
+from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -64,6 +64,59 @@ def plot_solid(
     plt.close()
 
 
+def plot_cell_types(
+    cell_types: np.ndarray,
+    fname: str,
+    codes: Tuple[int, int, int] = (0, 1, 2),
+    show: bool = False,
+    out_dir: Optional[str] = None,
+) -> None:
+    """Plot categorical cell types: fluid, near-wall, and wall.
+
+    Parameters
+    ----------
+    cell_types : np.ndarray
+        Integer array encoding categories. By default, ``0`` = fluid,
+        ``1`` = near-wall (8-neighbour adjacency), ``2`` = wall.
+    fname : str
+        Output PNG filename.
+    codes : tuple of int, optional
+        A triplet ``(fluid_code, near_wall_code, wall_code)`` to match the
+        values in ``cell_types``. Defaults to ``(0, 1, 2)``.
+    show : bool, optional
+        If ``True``, display the figure interactively.
+    out_dir : str, optional
+        Directory to save the output image. Defaults to the current working
+        directory.
+
+    Notes
+    -----
+    Colors are chosen for clarity on a light background: fluid (light gray),
+    near-wall (orange), wall (black). A colorbar with labels is included.
+    """
+    out_dir = _ensure_output_dir(out_dir)
+
+    fluid_code, near_code, wall_code = codes
+    # Map arbitrary codes to 0,1,2 for stable coloring
+    mapped = np.full_like(cell_types, fill_value=-1, dtype=np.int8)
+    mapped[cell_types == fluid_code] = 0
+    mapped[cell_types == near_code] = 1
+    mapped[cell_types == wall_code] = 2
+
+    cmap = colors.ListedColormap(["#d9d9d9", "#ff7f0e", "#000000"])  # fluid, near, wall
+
+    plt.figure()
+    im = plt.imshow(mapped, origin="lower", cmap=cmap, interpolation="nearest")
+    cbar = plt.colorbar(im, ticks=[0, 1, 2])
+    cbar.ax.set_yticklabels(["fluid", "near-wall", "wall"])  # type: ignore[attr-defined]
+    plt.title("Cell types: fluid / near-wall / wall")
+    plt.tight_layout()
+    plt.savefig(os.path.join(out_dir, fname), dpi=150)
+    if show:
+        plt.show()
+    plt.close()
+
+
 def plot_phi(
     phi: np.ndarray,
     fname: str,
@@ -89,19 +142,22 @@ def plot_phi(
         directory.
     """
     out_dir = _ensure_output_dir(out_dir)
-    plt.figure()
+    # Use explicit fig/ax and bind colorbar to the imshow mappable.
+    # Otherwise, adding a monochrome contour afterwards makes plt.colorbar()
+    # attach to the contour set, yielding a blank colorbar.
+    fig, ax = plt.subplots()
     max_abs = float(np.nanmax(np.abs(phi)))
     norm = colors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
-    plt.imshow(phi, origin="lower", cmap="coolwarm", norm=norm)
+    im = ax.imshow(phi, origin="lower", cmap="coolwarm", norm=norm)
     if levels:
-        plt.contour(phi, levels=levels, colors="k", linewidths=0.5)
-    plt.title("Signed distance field φ")
-    plt.colorbar()
-    plt.tight_layout()
-    plt.savefig(os.path.join(out_dir, fname), dpi=150)
+        ax.contour(phi, levels=levels, colors="k", linewidths=0.5)
+    ax.set_title("Signed distance field φ")
+    fig.colorbar(im, ax=ax)
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, fname), dpi=150)
     if show:
         plt.show()
-    plt.close()
+    plt.close(fig)
 
 
 def plot_bouzidi_hist(

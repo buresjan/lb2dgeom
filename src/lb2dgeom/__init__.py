@@ -10,11 +10,12 @@ subpackages without needing to traverse the package hierarchy.
 from . import shapes, viz
 from .bouzidi import compute_bouzidi
 from .grids import Grid
-from .raster import rasterize
+from .raster import rasterize, classify_cells
 
 __all__ = [
     "Grid",
     "rasterize",
+    "classify_cells",
     "compute_bouzidi",
     "viz",
     "shapes",

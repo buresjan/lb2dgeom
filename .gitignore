@@ -104,6 +104,7 @@ examples/output/
 *.npy
 *.h5
 *.mp4
+*.txt
 
 # Operating system files
 .DS_Store

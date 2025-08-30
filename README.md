@@ -94,6 +94,23 @@ utilities.
   `plot_solid`, `plot_phi`, `plot_bouzidi_hist` and
   `plot_bouzidi_dirs` for inspecting geometry and boundary data.
 
+### Bouzidi direction mapping and TXT export
+
+The D2Q9 moving directions use the standard ordering. Indices and names:
+
+- 1: east (1, 0)
+- 2: north (0, 1)
+- 3: west (-1, 0)
+- 4: south (0, -1)
+- 5: northeast (1, 1)
+- 6: northwest (-1, 1)
+- 7: southwest (-1, -1)
+- 8: southeast (1, -1)
+
+`lb2dgeom.io.save_txt` writes rows as:
+`x y type q_east q_north q_west q_south q_northeast q_northwest q_southwest q_southeast`.
+Missing coefficients are written as `-1`.
+
 ### Boolean operations
 
 The `lb2dgeom.shapes.ops` module provides `union`, `difference` and

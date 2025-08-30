@@ -4,6 +4,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple, Union
 import numpy as np
 
 from .grids import Grid
+from .d2q9 import E_NAMES
 
 
 def save_npz(
@@ -64,7 +65,8 @@ def save_txt(
 ) -> None:
     """Export per-cell data to a whitespace-delimited text file.
 
-    Each row contains 11 numbers: ``x y type q1 q2 q3 q4 q5 q6 q7 q8``.
+    Each row contains 11 numbers: ``x y type q_east q_north q_west q_south
+    q_northeast q_northwest q_southwest q_southeast``.
     Coordinates are physical cell-center coordinates from the provided ``grid``.
     Bouzidi coefficients are taken from directions 1..8 (moving directions),
     in the standard D2Q9 ordering. Non-existent coefficients (NaN) are written
@@ -93,6 +95,12 @@ def save_txt(
         Defaults to ``False`` (numeric-only file).
     float_fmt : str, optional
         Format string for floating-point values. Defaults to ``"%.8g"``.
+
+    Direction/column mapping
+    ------------------------
+    The eight Bouzidi columns correspond to D2Q9 indices ``1..8`` in this
+    order: ``east, north, west, south, northeast, northwest, southwest,
+    southeast``. These names match ``lb2dgeom.d2q9.E_NAMES[1:]``.
 
     Returns
     -------
@@ -136,7 +144,23 @@ def save_txt(
 
     # Mixed formatting: x, y (float), type (int), q1..q8 (float)
     fmts = [float_fmt, float_fmt, "%d"] + [float_fmt] * 8
-    header = "x y type q1 q2 q3 q4 q5 q6 q7 q8" if include_header else ""
+    if include_header:
+        labels = [
+            "q_" + name
+            for name in (
+                E_NAMES[1],
+                E_NAMES[2],
+                E_NAMES[3],
+                E_NAMES[4],
+                E_NAMES[5],
+                E_NAMES[6],
+                E_NAMES[7],
+                E_NAMES[8],
+            )
+        ]
+        header = " ".join(["x", "y", "type", *labels])
+    else:
+        header = ""
 
     # Use numpy.savetxt for efficiency and consistency
     np.savetxt(path, data, fmt=fmts, header=header, comments="" if include_header else "")

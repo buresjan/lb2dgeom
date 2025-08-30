@@ -66,7 +66,9 @@ The library’s goal is to provide high-accuracy signed distance field (SDF) gen
 * **`raster.py`** – Rasterizes a shape’s SDF onto the grid, producing the signed distance field (`phi`) and the binary solid mask.
 * **`d2q9.py`** – Defines the D2Q9 discrete velocity set and associated constants for LBM simulations.
 * **`bouzidi.py`** – Computes Bouzidi link fractions (`q_i`) for fluid cells adjacent to solid boundaries, using the signed distance field.
+  - Direction indexing follows standard D2Q9: 1=east, 2=north, 3=west, 4=south, 5=NE, 6=NW, 7=SW, 8=SE. The rest velocity is index 0 and is not exported to TXT.
 * **`io.py`** – Provides helper functions to save and load geometry datasets in `.npz` format.
+  - TXT export (`save_txt`) writes per‑cell rows: `x y type q_east q_north q_west q_south q_northeast q_northwest q_southwest q_southeast`. Non‑existent coefficients are written as `-1`.
 * **`viz.py`** – Provides visualization tools to plot the solid mask, φ contours, and Bouzidi histograms, saving PNGs by default.
 * **`examples/`** – Contains demonstration scripts showing end-to-end usage of the package; all examples save outputs for documentation.
 * **`tests/`** – Contains unit tests covering shape SDFs, rasterization, and Bouzidi computations.

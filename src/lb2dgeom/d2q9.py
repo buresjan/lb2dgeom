@@ -21,8 +21,24 @@ Attributes
 E : ndarray of shape (9, 2)
     Velocity vectors ``[e_x, e_y]`` following the standard ordering.
 E_LENGTHS : ndarray of shape (9,)
-    Euclidean length of each velocity vector, useful for Bouzidi
-    normalization.
+    Euclidean length of each velocity vector, useful for Bouzidi normalization.
+E_NAMES : list[str]
+    Direction names corresponding to indices ``0..8`` in ``E``.
+    The mapping is::
+
+        0: rest
+        1: east        (1, 0)
+        2: north       (0, 1)
+        3: west       (-1, 0)
+        4: south       (0,-1)
+        5: northeast   (1, 1)
+        6: northwest  (-1, 1)
+        7: southwest  (-1,-1)
+        8: southeast   (1,-1)
+ 
+    When exporting as text via :func:`lb2dgeom.io.save_txt`, columns are
+    written in the order ``q_east, q_north, q_west, q_south, q_northeast,
+    q_northwest, q_southwest, q_southeast`` corresponding to indices 1..8.
 """
 
 import numpy as np
@@ -50,4 +66,16 @@ E = np.array(
 # Useful for Bouzidi normalization
 E_LENGTHS = np.sqrt(np.sum(E.astype(float) ** 2, axis=1))
 
-__all__ = ["E", "E_LENGTHS"]
+E_NAMES = [
+    "rest",
+    "east",
+    "north",
+    "west",
+    "south",
+    "northeast",
+    "northwest",
+    "southwest",
+    "southeast",
+]
+
+__all__ = ["E", "E_LENGTHS", "E_NAMES"]

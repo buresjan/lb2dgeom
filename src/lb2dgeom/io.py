@@ -111,6 +111,10 @@ def save_txt(
     if bouzidi.ndim != 3 or bouzidi.shape[:2] != cell_types.shape or bouzidi.shape[2] != 9:
         raise ValueError("bouzidi must have shape (ny, nx, 9) matching cell_types")
 
+    expected_shape = (grid.ny, grid.nx)
+    if cell_types.shape != expected_shape:
+        raise ValueError("cell_types shape must match the Grid dimensions (ny, nx)")
+
     ny, nx = cell_types.shape
     X, Y = grid.coords()
 

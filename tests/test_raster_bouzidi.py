@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from lb2dgeom.bouzidi import compute_bouzidi
 from lb2dgeom.grids import Grid
+from lb2dgeom.io import save_txt
 from lb2dgeom.raster import rasterize
 from lb2dgeom.shapes.circle import Circle
 
@@ -86,3 +87,20 @@ def test_bouzidi_skips_out_of_bounds_interp():
     )
     bouzidi = compute_bouzidi(g, phi, solid)
     assert np.isnan(bouzidi[1, 1, 1])
+
+
+def test_compute_bouzidi_raises_on_shape_mismatch():
+    g = Grid(8, 8, dx=1.0)
+    phi = np.zeros((6, 6), dtype=float)
+    solid = np.zeros_like(phi, dtype=int)
+    with pytest.raises(ValueError, match="shape must match"):
+        compute_bouzidi(g, phi, solid)
+
+
+def test_save_txt_validates_grid_shape(tmp_path):
+    g = Grid(8, 8, dx=1.0)
+    cell_types = np.zeros((6, 8), dtype=int)
+    bouzidi = np.zeros((6, 8, 9), dtype=float)
+    out_path = tmp_path / "geom.txt"
+    with pytest.raises(ValueError, match="Grid dimensions"):
+        save_txt(out_path, g, cell_types, bouzidi)

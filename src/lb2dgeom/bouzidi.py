@@ -43,6 +43,18 @@ def compute_bouzidi(
     bouzidi : np.ndarray of shape (ny, nx, 9), dtype=float32
         q_i fractions. NaN where no boundary link.
     """
+    if phi.ndim != 2:
+        raise ValueError("phi must be a 2D array")
+    if solid.ndim != 2:
+        raise ValueError("solid mask must be 2D")
+    if phi.shape != solid.shape:
+        raise ValueError("phi and solid must share the same shape")
+    expected_shape = (grid.ny, grid.nx)
+    if phi.shape != expected_shape:
+        raise ValueError(
+            "phi/solid shape must match the Grid dimensions (ny, nx)"
+        )
+
     ny, nx = solid.shape
     dx = grid.dx
     bouzidi = np.full((ny, nx, 9), np.nan, dtype=np.float32)

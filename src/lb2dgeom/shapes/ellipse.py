@@ -25,6 +25,8 @@ class Ellipse(Shape):
     """
 
     def __init__(self, x0: float, y0: float, a: float, b: float, theta: float = 0.0):
+        if a <= 0 or b <= 0:
+            raise ValueError("Ellipse semi-axes must be positive")
         self.x0 = float(x0)
         self.y0 = float(y0)
         self.a = float(a)

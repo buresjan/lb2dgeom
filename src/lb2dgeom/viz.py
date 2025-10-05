@@ -146,10 +146,24 @@ def plot_phi(
     # Otherwise, adding a monochrome contour afterwards makes plt.colorbar()
     # attach to the contour set, yielding a blank colorbar.
     fig, ax = plt.subplots()
-    max_abs = float(np.nanmax(np.abs(phi)))
-    norm = colors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
+    abs_phi = np.abs(phi)
+    if np.isnan(abs_phi).all():
+        max_abs = 0.0
+    else:
+        with np.errstate(all="ignore"):
+            try:
+                max_abs = float(np.nanmax(abs_phi))
+            except ValueError:
+                max_abs = 0.0
+    if not np.isfinite(max_abs):
+        max_abs = 0.0
+
+    norm = None
+    if max_abs > 0.0 and np.isfinite(max_abs):
+        norm = colors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
+
     im = ax.imshow(phi, origin="lower", cmap="coolwarm", norm=norm)
-    if levels:
+    if levels and max_abs > 0.0:
         ax.contour(phi, levels=levels, colors="k", linewidths=0.5)
     ax.set_title("Signed distance field φ")
     fig.colorbar(im, ax=ax)

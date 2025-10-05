@@ -13,6 +13,8 @@ class Circle(Shape):
     Negative inside, zero on boundary, positive outside.
     """
     def __init__(self, x0: float, y0: float, r: float):
+        if r <= 0:
+            raise ValueError("Circle radius must be positive")
         self.x0 = float(x0)
         self.y0 = float(y0)
         self.r = float(r)

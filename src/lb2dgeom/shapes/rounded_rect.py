@@ -54,8 +54,19 @@ class RoundedRect(Shape):
         self.y0 = float(y0)
         self.w = float(w)
         self.h = float(h)
-        self.rx = float(rx)
-        self.ry = float(rx if ry is None else ry)
+        if self.w <= 0.0 or self.h <= 0.0:
+            raise ValueError("Rounded rectangle width and height must be positive")
+
+        rx_val = float(rx)
+        if rx_val < 0.0:
+            raise ValueError("Rounded rectangle corner radius rx must be non-negative")
+
+        ry_val = float(rx if ry is None else ry)
+        if ry_val < 0.0:
+            raise ValueError("Rounded rectangle corner radius ry must be non-negative")
+
+        self.rx = rx_val
+        self.ry = ry_val
         self.theta = float(theta)
         # Cap radii so they don't exceed half-dimensions
         self.rx = min(self.rx, 0.5 * self.w)

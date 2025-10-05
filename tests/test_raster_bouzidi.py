@@ -42,6 +42,31 @@ def test_bouzidi_handles_boundary_on_neighbor_center():
     assert np.isclose(bouzidi[y, x, 3], 1.0)
 
 
+def test_bouzidi_handles_positive_threshold():
+    g = Grid(21, 21, dx=1.0, origin=(-10, -10))
+    shape = Circle(0, 0, 5.0)
+    phi, solid = rasterize(g, shape, threshold=0.1)
+    bouzidi = compute_bouzidi(g, phi, solid)
+
+    # Should still find valid boundary links despite dilated solid mask
+    assert np.any(~np.isnan(bouzidi[:, :, 1:]))
+
+    y = int(0 - g.origin[1])
+    x = int(6 - g.origin[0])
+    assert np.isfinite(bouzidi[y, x, 3])
+    assert 0.0 <= bouzidi[y, x, 3] <= 1.0
+
+
+def test_bouzidi_handles_negative_threshold():
+    g = Grid(21, 21, dx=1.0, origin=(-10, -10))
+    shape = Circle(0, 0, 5.0)
+    phi, solid = rasterize(g, shape, threshold=-0.2)
+    bouzidi = compute_bouzidi(g, phi, solid)
+
+    # Eroded solid mask should still produce Bouzidi fractions
+    assert np.any(~np.isnan(bouzidi[:, :, 1:]))
+
+
 def test_bouzidi_skips_out_of_bounds_interp():
     g = Grid(3, 3, dx=1.0, origin=(0.0, 0.0))
     phi = np.array(

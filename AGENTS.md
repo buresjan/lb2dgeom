@@ -26,12 +26,19 @@ The library’s goal is to provide high-accuracy signed distance field (SDF) gen
 ```
 .
 ├── AGENTS.md
+├── INSTALL.md
 ├── README.md
+├── environment.yml
 ├── setup.cfg
 ├── pyproject.toml
+├── ellipse-1D
+│   ├── README.txt
+│   └── generate.py
 ├── examples
+│   ├── demo_boolean_ops.py
 │   ├── demo_cassini.py
-│   └── demo_ellipse.py
+│   ├── demo_ellipse.py
+│   └── output
 ├── src
 │   └── lb2dgeom
 │       ├── bouzidi.py
@@ -63,13 +70,13 @@ The library’s goal is to provide high-accuracy signed distance field (SDF) gen
 * **`shapes/base.py`** – Defines the base `Shape` interface, including the `.sdf(x, y)` method for signed distance evaluation and support for rotation.
 * **`shapes/<primitive>.py`** – Contains implementations of signed distance functions for specific parametric shapes (circle, ellipse, rectangle, rounded rectangle, Cassini oval).
 * **`shapes/ops.py`** – Implements boolean shape composition (union, intersection, difference) using standard SDF min/max rules.
-* **`raster.py`** – Rasterizes a shape’s SDF onto the grid, producing the signed distance field (`phi`) and the binary solid mask.
+* **`raster.py`** – Rasterizes a shape’s SDF onto the grid, producing the signed distance field (`phi`) and the binary solid mask, and classifies cells (fluid / near-wall / wall) via `classify_cells`.
 * **`d2q9.py`** – Defines the D2Q9 discrete velocity set and associated constants for LBM simulations.
 * **`bouzidi.py`** – Computes Bouzidi link fractions (`q_i`) for fluid cells adjacent to solid boundaries, using the signed distance field.
   - Direction indexing follows standard D2Q9: 1=east, 2=north, 3=west, 4=south, 5=NE, 6=NW, 7=SW, 8=SE. The rest velocity is index 0 and is not exported to TXT.
 * **`io.py`** – Provides helper functions to save and load geometry datasets in `.npz` format.
-  - TXT export (`save_txt`) writes per‑cell rows: `x y type q_east q_north q_west q_south q_northeast q_northwest q_southwest q_southeast`. Non‑existent coefficients are written as `-1`.
-* **`viz.py`** – Provides visualization tools to plot the solid mask, φ contours, and Bouzidi histograms, saving PNGs by default.
+  - TXT export (`save_txt`) consumes the `classify_cells` output and writes per‑cell rows: `x y type q_east q_north q_west q_south q_northeast q_northwest q_southwest q_southeast`. Non‑existent coefficients are written as `-1`.
+* **`viz.py`** – Provides visualization tools to plot the solid mask, φ contours, Bouzidi histograms, per-direction `q_i` maps, and categorical cell-type plots, saving PNGs by default.
 * **`examples/`** – Contains demonstration scripts showing end-to-end usage of the package; all examples save outputs for documentation.
 * **`tests/`** – Contains unit tests covering shape SDFs, rasterization, and Bouzidi computations.
 
@@ -139,8 +146,11 @@ The library’s goal is to provide high-accuracy signed distance field (SDF) gen
 * **Viz agent** writes plots to a caller-specified directory (default is the
   current working directory). Example scripts pass
   `out_dir=os.path.join("examples", "output")` and show plots interactively
-  only in `__main__`.
-* **I/O agent** should always save `solid`, `phi`, `bouzidi` arrays with matching dimensions.
+  only in `__main__`. Use `plot_cell_types` to visualise the categorical output
+  of `classify_cells`.
+* **I/O agent** should always save `solid`, `phi`, `bouzidi` arrays with matching
+  dimensions and include the `cell_types` array when exporting text or
+  additional diagnostics.
 
 ---
 

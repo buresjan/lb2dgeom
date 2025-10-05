@@ -17,3 +17,15 @@ def test_viz_outputs(tmp_path):
     assert (tmp_path / "hist_test.png").exists()
     assert (tmp_path / "dir_test_0.png").exists()
     assert (tmp_path / "cell_types_test.png").exists()
+
+
+def test_plot_phi_constant_field(tmp_path):
+    phi = np.zeros((4, 4), dtype=np.float32)
+    viz.plot_phi(phi, "phi_constant.png", show=False, out_dir=tmp_path)
+    assert (tmp_path / "phi_constant.png").exists()
+
+
+def test_plot_phi_all_nan(tmp_path):
+    phi = np.full((3, 3), np.nan, dtype=np.float32)
+    viz.plot_phi(phi, "phi_all_nan.png", show=False, out_dir=tmp_path)
+    assert (tmp_path / "phi_all_nan.png").exists()

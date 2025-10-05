@@ -1,5 +1,7 @@
+from typing import Optional
+
 import numpy as np
-from typing import Tuple
+
 from .d2q9 import E, E_LENGTHS
 from .grids import Grid
 
@@ -8,6 +10,8 @@ def compute_bouzidi(
     grid: Grid,
     phi: np.ndarray,
     solid: np.ndarray,
+    *,
+    phi_threshold: Optional[float] = None,
     tol: float = 1e-6,
     max_iter: int = 20,
 ) -> np.ndarray:
@@ -22,6 +26,13 @@ def compute_bouzidi(
         Signed distance field (negative in solid).
     solid : np.ndarray
         Solid mask (1=solid, 0=fluid).
+    phi_threshold : float, optional
+        Level-set value corresponding to the solid/fluid interface. This should
+        match the ``threshold`` used in :func:`lb2dgeom.raster.rasterize`. When
+        ``None`` (default), the value is inferred from ``phi`` by taking the
+        maximum signed-distance value observed inside solid cells. This allows
+        Bouzidi link fractions to remain valid even when the solid mask is
+        dilated or eroded via non-zero thresholds.
     tol : float
         Relative tolerance for boundary intersection root-finding.
     max_iter : int
@@ -35,6 +46,28 @@ def compute_bouzidi(
     ny, nx = solid.shape
     dx = grid.dx
     bouzidi = np.full((ny, nx, 9), np.nan, dtype=np.float32)
+
+    solid_mask = solid.astype(bool)
+    if phi_threshold is None:
+        inferred_threshold = 0.0
+        if np.any(solid_mask):
+            solid_values = phi[solid_mask]
+            finite_vals = solid_values[np.isfinite(solid_values)]
+            if finite_vals.size:
+                solid_max = float(np.max(finite_vals))
+                inferred_threshold = solid_max
+                fluid_mask = ~solid_mask
+                fluid_values = phi[fluid_mask]
+                fluid_finite = fluid_values[np.isfinite(fluid_values)]
+                if (
+                    solid_max < 0.0
+                    and fluid_finite.size
+                    and float(np.min(fluid_finite)) > 0.0
+                ):
+                    inferred_threshold = 0.0
+        threshold = inferred_threshold
+    else:
+        threshold = float(phi_threshold)
 
     Xc, Yc = grid.coords()
 
@@ -58,30 +91,34 @@ def compute_bouzidi(
                 yf = Yc[y, x]
                 phi_f = phi[y, x]
                 phi_b = phi[nyn, nxn]
+                phi_f_adj = phi_f - threshold
+                phi_b_adj = phi_b - threshold
                 # Ensure bracket: fluid strictly positive, solid strictly negative
                 if (
-                    phi_f <= 0
-                    or phi_b >= 0
-                    or np.isclose(phi_f, 0.0, atol=tol)
-                    or np.isclose(phi_b, 0.0, atol=tol)
+                    phi_f_adj <= 0
+                    or phi_b_adj >= 0
+                    or np.isclose(phi_f_adj, 0.0, atol=tol)
+                    or np.isclose(phi_b_adj, 0.0, atol=tol)
                 ):
-                    if np.isclose(phi_f, 0.0, atol=tol) and phi_b < 0:
+                    if np.isclose(phi_f_adj, 0.0, atol=tol) and phi_b_adj < 0:
                         bouzidi[y, x, i] = 0.0
-                    elif np.isclose(phi_b, 0.0, atol=tol) and phi_f > 0:
+                    elif np.isclose(phi_b_adj, 0.0, atol=tol) and phi_f_adj > 0:
                         bouzidi[y, x, i] = 1.0
                     continue
                 s0 = 0.0
                 s1 = L
                 encountered_nan = False
+                inv_len = 1.0 / E_LENGTHS[i]
                 for _ in range(max_iter):
                     sm = 0.5 * (s0 + s1)
-                    xm = xf + (ex / E_LENGTHS[i]) * sm
-                    ym = yf + (ey / E_LENGTHS[i]) * sm
+                    xm = xf + ex * sm * inv_len
+                    ym = yf + ey * sm * inv_len
                     phi_m = float(interp_phi(xm, ym, grid, phi))
                     if np.isnan(phi_m):
                         encountered_nan = True
                         break
-                    if phi_m > 0:
+                    phi_m_adj = phi_m - threshold
+                    if phi_m_adj > 0:
                         s0 = sm
                     else:
                         s1 = sm

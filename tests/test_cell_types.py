@@ -22,9 +22,9 @@ def test_classify_cells_8_connected_ring():
             [1, 2, 1],
             [1, 1, 1],
         ],
-        dtype=np.int8,
+        dtype=np.result_type(0, 1, 2),
     )
-    assert ct.dtype == np.int8
+    assert ct.dtype == np.result_type(0, 1, 2)
     assert np.array_equal(ct, expected)
 
 
@@ -41,3 +41,18 @@ def test_classify_cells_edges_diagonals_included():
     # Walls coded as 2
     assert np.all(ct[:2, :2] == 2)
 
+
+def test_classify_cells_preserves_custom_codes():
+    solid = np.zeros((3, 3), dtype=np.uint8)
+    solid[0, 0] = 1
+    ct = classify_cells(
+        solid,
+        fluid_code=10,
+        near_wall_code=20,
+        wall_code=255,
+    )
+    assert ct.dtype == np.result_type(10, 20, 255)
+    assert ct[0, 0] == 255
+    assert ct[0, 1] == 20
+    assert ct[1, 1] == 20
+    assert ct[2, 2] == 10

@@ -81,7 +81,8 @@ def classify_cells(
     fluid = ~solid_bool
     near_wall = fluid & nb
 
-    cell_types = np.full((ny, nx), fluid_code, dtype=np.int8)
+    dtype = np.result_type(fluid_code, near_wall_code, wall_code)
+    cell_types = np.full((ny, nx), fluid_code, dtype=dtype)
     cell_types[near_wall] = near_wall_code
     cell_types[solid_bool] = wall_code
     return cell_types

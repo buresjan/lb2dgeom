@@ -40,6 +40,15 @@ def test_rectangle_sdf_no_rotation():
     assert r.sdf(3, 0) > 0
 
 
+def test_rectangle_invalid_dimensions():
+    with pytest.raises(ValueError):
+        Rectangle(0, 0, 0.0, 2.0)
+    with pytest.raises(ValueError):
+        Rectangle(0, 0, -1.0, 2.0)
+    with pytest.raises(ValueError):
+        Rectangle(0, 0, 2.0, 0.0)
+
+
 def test_rounded_rect_sdf():
     rr = RoundedRect(0, 0, 4, 4, 1)
     assert rr.sdf(0, 0) < 0
@@ -56,6 +65,15 @@ def test_rounded_rect_sdf_anisotropic():
     assert np.isclose(rr.sdf(2, 0.4), 0.0, atol=1e-6)
     # Outside near the top-right corner
     assert np.isclose(rr.sdf(2.2, 0.5), 0.2, atol=1e-6)
+
+
+def test_rounded_rect_invalid_parameters():
+    with pytest.raises(ValueError):
+        RoundedRect(0, 0, 0.0, 4.0, 1.0)
+    with pytest.raises(ValueError):
+        RoundedRect(0, 0, 4.0, 4.0, -0.5)
+    with pytest.raises(ValueError):
+        RoundedRect(0, 0, 4.0, 4.0, 1.0, ry=-0.75)
 
 
 def test_cassini_oval_sdf_one_loop_two_loop():
@@ -97,3 +115,17 @@ def test_rotated_shape_custom_origin():
     r_default = RotatedShape(rect, np.pi / 2)
     assert np.isclose(r_origin0.sdf(0, 2), 0.0, atol=1e-6)
     assert r_default.sdf(0, 2) > 0.5
+
+
+def test_circle_invalid_radius():
+    with pytest.raises(ValueError):
+        Circle(0, 0, 0.0)
+    with pytest.raises(ValueError):
+        Circle(0, 0, -1.0)
+
+
+def test_ellipse_invalid_axes():
+    with pytest.raises(ValueError):
+        Ellipse(0, 0, 0.0, 2.0)
+    with pytest.raises(ValueError):
+        Ellipse(0, 0, 3.0, -1.0)

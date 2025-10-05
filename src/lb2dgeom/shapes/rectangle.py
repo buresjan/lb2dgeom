@@ -25,6 +25,8 @@ class Rectangle(Shape):
         self.y0 = float(y0)
         self.w = float(w)
         self.h = float(h)
+        if self.w <= 0.0 or self.h <= 0.0:
+            raise ValueError("Rectangle width and height must be positive")
         self.theta = float(theta)
         self._cos = np.cos(-self.theta)
         self._sin = np.sin(-self.theta)

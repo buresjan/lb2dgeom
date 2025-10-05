@@ -17,9 +17,12 @@ LBM solvers:
   are rasterised onto uniform Cartesian grids.
 - **Bouzidi boundary fractions** – compute `q_i` link fractions for all
   D2Q9 lattice directions with physical length normalisation.
-- **I/O helpers** – save and load geometry data sets in `.npz` format.
+- **Cell classification** – detect fluid, near-wall and wall cells for
+  diagnostics and exports.
+- **I/O helpers** – save and load geometry data sets in `.npz` format and emit
+  `.txt` tables that include cell categories plus Bouzidi coefficients.
 - **Visualisation utilities** – plot solid masks, signed distance fields,
-  Bouzidi histograms and per‑direction `q_i` fields.
+  Bouzidi histograms, per‑direction `q_i` fields and categorical cell maps.
 
 ## Installation
 
@@ -42,31 +45,36 @@ pip install -e .
 
 ## Quickstart
 
-The snippet below demonstrates the typical work flow: build a grid, define a
-shape, rasterise its signed distance field, compute Bouzidi coefficients and
-produce diagnostic plots.
+The snippet below demonstrates the typical workflow: build a grid, define a
+shape, rasterise its signed distance field, compute Bouzidi coefficients,
+classify near-wall cells and produce diagnostics/exports.
 
 ```python
-import numpy as np
-from lb2dgeom.bouzidi import compute_bouzidi
-from lb2dgeom.grids import Grid
-from lb2dgeom.io import save_npz
-from lb2dgeom.raster import rasterize
+from lb2dgeom import Grid, classify_cells, compute_bouzidi, rasterize, viz
+from lb2dgeom.io import save_npz, save_txt
 from lb2dgeom.shapes.circle import Circle
-from lb2dgeom import viz
 
 # Grid and shape
 g = Grid(nx=100, ny=80, dx=1.0, origin=(-50.0, -40.0))
 shape = Circle(x0=0.0, y0=0.0, r=20.0)
 
-# Rasterise and compute Bouzidi q_i
+# Rasterise, classify cells and compute Bouzidi q_i
 phi, solid = rasterize(g, shape)
 bouzidi = compute_bouzidi(g, phi, solid)
+cell_types = classify_cells(solid)
 
-# Save and plot
-save_npz("circle_geom.npz", solid, phi, bouzidi)
+# Save, export and plot
+save_npz("circle_geom.npz", solid, phi, bouzidi, cell_types=cell_types)
+save_txt(
+    "circle_geom.txt",
+    g,
+    cell_types,
+    bouzidi,
+    include_header=True,
+)
 viz.plot_phi(phi, "circle_phi.png")
 viz.plot_bouzidi_dirs(bouzidi, "circle_bouzidi_dir")
+viz.plot_cell_types(cell_types, "circle_cell_types.png")
 ```
 
 See the ``examples/`` directory for complete scripts for an ellipse, a Cassini
@@ -85,13 +93,16 @@ utilities.
   operations from `lb2dgeom.shapes.ops`.
 - **Rasterisation** – `rasterize(grid, shape)` samples `phi` and returns the
   solid mask for LBM nodes.
+- **Cell classification** – `classify_cells(solid)` labels fluid, near-wall and
+  solid cells (codes default to ``0/1/2``) for diagnostics and text exports.
 - **Bouzidi coefficients** – `compute_bouzidi` locates boundary intersections
   for all lattice directions and returns an array of `q_i` fractions with
   `NaN` in cells without solid neighbours.
 - **I/O** – `lb2dgeom.io.save_npz` and `load_npz` persist geometry arrays to
-  disk.
+  disk; `save_txt` writes per-cell whitespace-delimited tables for external
+  solvers.
 - **Visualisation** – `lb2dgeom.viz` contains
-  `plot_solid`, `plot_phi`, `plot_bouzidi_hist` and
+  `plot_solid`, `plot_phi`, `plot_cell_types`, `plot_bouzidi_hist` and
   `plot_bouzidi_dirs` for inspecting geometry and boundary data.
 
 ### Bouzidi direction mapping and TXT export
@@ -107,30 +118,31 @@ The D2Q9 moving directions use the standard ordering. Indices and names:
 - 7: southwest (-1, -1)
 - 8: southeast (1, -1)
 
-`lb2dgeom.io.save_txt` writes rows as:
+`lb2dgeom.io.save_txt` consumes the `cell_types` array produced by
+`classify_cells` and writes rows as:
 `x y type q_east q_north q_west q_south q_northeast q_northwest q_southwest q_southeast`.
 Missing coefficients are written as `-1`.
 
 ### Boolean operations
 
-The `lb2dgeom.shapes.ops` module provides `union`, `difference` and
-`intersection` helpers for combining shapes. The snippet below joins a circle
+The `lb2dgeom.shapes.ops` module provides `Union`, `Difference` and
+`Intersection` classes for combining shapes. The snippet below joins a circle
 and rectangle and renders the union mask:
 
 ```python
 from lb2dgeom.grids import Grid
 from lb2dgeom.raster import rasterize
 from lb2dgeom.shapes.circle import Circle
-from lb2dgeom.shapes.ops import difference, intersection, union
+from lb2dgeom.shapes.ops import Difference, Intersection, Union
 from lb2dgeom.shapes.rectangle import Rectangle
 from lb2dgeom import viz
 
 circle = Circle(x0=-10.0, y0=0.0, r=15.0)
 rect = Rectangle(x0=10.0, y0=0.0, w=20.0, h=30.0)
 
-u = union(circle, rect)
-i = intersection(circle, rect)
-d = difference(circle, rect)
+u = Union(circle, rect)
+i = Intersection(circle, rect)
+d = Difference(circle, rect)
 
 g = Grid(nx=120, ny=80, dx=1.0, origin=(-60.0, -40.0))
 phi_u, solid_u = rasterize(g, u)

@@ -38,6 +38,18 @@ class RoundedRect(Shape):
        d_y = |y_l| - hh_0 - r_y\\
        \phi = \operatorname{hypot}(\max(d_x,0),\max(d_y,0))
               + \min(\max(d_x,d_y),0)
+
+    FIXME
+    -----
+    The current implementation below effectively reduces to an axis-aligned or
+    rotated rectangle SDF because the radius terms algebraically cancel in
+    ``dx``/``dy``. This means corner rounding is not currently represented in
+    the returned distance field.
+
+    TODO
+    ----
+    Replace the SDF with a true rounded-rectangle formulation that preserves
+    ``rx``/``ry`` and produces quarter-ellipse corners.
     """
 
     def __init__(
@@ -86,6 +98,9 @@ class RoundedRect(Shape):
             y_local = Y
         hw0 = max(0.5 * self.w - self.rx, 0.0)
         hh0 = max(0.5 * self.h - self.ry, 0.0)
+        # FIXME: rx/ry cancel out with hw0/hh0 in the two lines below, so this
+        # currently behaves like a plain rectangle SDF.
+        # TODO: implement a proper rounded-rectangle SDF that retains radii.
         dx = np.abs(x_local) - hw0 - self.rx
         dy = np.abs(y_local) - hh0 - self.ry
         outside_dist = np.hypot(np.maximum(dx, 0.0), np.maximum(dy, 0.0))

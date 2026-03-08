@@ -3,11 +3,12 @@
 This module exposes the most commonly used classes, functions and
 subpackages at the top level for easy access.  Users can simply import
 ``lb2dgeom`` and access :class:`Grid`, :func:`rasterize`,
-:func:`compute_bouzidi`, as well as the :mod:`viz` and :mod:`shapes`
-subpackages without needing to traverse the package hierarchy.
+:func:`compute_bouzidi`, as well as the :mod:`viz`, :mod:`shapes`, and
+:mod:`special_shapes` subpackages without needing to traverse the package
+hierarchy.
 """
 
-from . import shapes, viz
+from . import shapes, special_shapes, viz
 from .bouzidi import compute_bouzidi
 from .grids import Grid
 from .raster import rasterize, classify_cells
@@ -19,4 +20,5 @@ __all__ = [
     "compute_bouzidi",
     "viz",
     "shapes",
+    "special_shapes",
 ]

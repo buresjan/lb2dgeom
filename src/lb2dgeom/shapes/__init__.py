@@ -1,7 +1,7 @@
 """Shape primitives and operations for lb2dgeom."""
 
 from .base import Shape
-from .cassini_oval import CassiniOval
+from .cassini_oval import CassiniOval, cassini_b_from_area, cassini_oval_area
 from .circle import Circle
 from .ellipse import Ellipse
 from .ops import Difference, Intersection, RotatedShape, Union
@@ -19,4 +19,6 @@ __all__ = [
     "Rectangle",
     "RoundedRect",
     "CassiniOval",
+    "cassini_oval_area",
+    "cassini_b_from_area",
 ]

@@ -1,6 +1,10 @@
 import numpy as np
 import pytest
-from lb2dgeom.shapes.cassini_oval import CassiniOval
+from lb2dgeom.shapes.cassini_oval import (
+    CassiniOval,
+    cassini_b_from_area,
+    cassini_oval_area,
+)
 from lb2dgeom.shapes.circle import Circle
 from lb2dgeom.shapes.ellipse import Ellipse
 from lb2dgeom.shapes.ops import Difference, Intersection, RotatedShape, Union
@@ -88,6 +92,43 @@ def test_cassini_oval_gradient_near_boundary():
     x_b = np.sqrt(co.c**2 + co.a**2)
     grad = _grad_norm(co.sdf, x_b, 0.0)
     assert np.isclose(grad, 1.0, atol=1e-3)
+
+
+def test_cassini_oval_area_reduces_to_circle():
+    b = 0.35
+    assert np.isclose(cassini_oval_area(0.0, b), np.pi * b**2, atol=1e-12)
+
+
+def test_cassini_b_from_area_matches_target():
+    standard_a = 0.2
+    target_area = 0.04
+    standard_b = cassini_b_from_area(standard_a, target_area, num_theta=4096, tol=1e-10)
+
+    assert np.isclose(
+        cassini_oval_area(standard_a, standard_b, num_theta=4096),
+        target_area,
+        atol=1e-8,
+    )
+
+
+def test_cassini_from_standard_area_maps_to_internal_parameters():
+    shape = CassiniOval.from_standard_area(
+        0.75,
+        0.25,
+        a=0.15,
+        area=0.04,
+        theta=np.pi / 6,
+        num_theta=4096,
+        tol=1e-10,
+    )
+
+    assert np.isclose(shape.x0, 0.75)
+    assert np.isclose(shape.y0, 0.25)
+    assert np.isclose(shape.c, 0.15)
+    assert np.isclose(shape.theta, np.pi / 6)
+    assert np.isclose(
+        cassini_oval_area(shape.c, shape.a, num_theta=4096), 0.04, atol=1e-8
+    )
 
 
 def test_boolean_ops():

@@ -23,6 +23,8 @@ LBM solvers:
   `.txt` tables that include cell categories plus Bouzidi coefficients.
 - **Visualisation utilities** – plot solid masks, signed distance fields,
   Bouzidi histograms, per‑direction `q_i` fields and categorical cell maps.
+- **Special-case presets** – installable objects under ``lb2dgeom.special_shapes``
+  for reusable geometry setups that are shared across downstream projects.
 
 ## Installation
 
@@ -78,11 +80,12 @@ viz.plot_cell_types(cell_types, "circle_cell_types.png")
 ```
 
 See the ``examples/`` directory for complete scripts for an ellipse, a Cassini
-oval, and boolean operations on primitives. Running an example (e.g.
-``python examples/demo_boolean_ops.py``) produces geometry files and PNG
-diagnostics. Each script writes its images to ``examples/output/`` by
-supplying ``out_dir=os.path.join("examples", "output")`` to the plotting
-utilities.
+oval, a target-area Cassini setup, and boolean operations on primitives.
+Running an example (e.g. ``python examples/demo_boolean_ops.py`` or
+``python examples/demo_cassini_target_area.py --a 0.1``) produces geometry
+files and PNG diagnostics. Each script writes its images to
+``examples/output/`` by supplying ``out_dir=os.path.join("examples", "output")``
+to the plotting utilities.
 
 ### Feature guide
 
@@ -91,6 +94,9 @@ utilities.
 - **Shapes** – analytic `sdf` implementations live in `lb2dgeom.shapes` and
   share a common `Shape` base class. Shapes may be combined via boolean
   operations from `lb2dgeom.shapes.ops`.
+- **Special shapes** – reusable, importable presets such as
+  `lb2dgeom.special_shapes.TargetAreaCassiniGeometry` package together the
+  grid, rasterisation, Bouzidi coefficients and TXT export for downstream use.
 - **Rasterisation** – `rasterize(grid, shape)` samples `phi` and returns the
   solid mask for LBM nodes.
 - **Cell classification** – `classify_cells(solid)` labels fluid, near-wall and
